@@ -14,3 +14,6 @@ experiment-*
 .mypy_cache/*
 not_tracked_dir/
 .vscode
+*.out
+*.err
+log.txt
