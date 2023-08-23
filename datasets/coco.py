@@ -12,7 +12,7 @@ import torchvision
 from pycocotools import mask as coco_mask
 
 import datasets.transforms as T
-
+from .taco import TacoDataset
 
 class CocoDetection(torchvision.datasets.CocoDetection):
     def __init__(self, img_folder, ann_file, transforms, return_masks):
@@ -156,3 +156,12 @@ def build(image_set, args):
     img_folder, ann_file = PATHS[image_set]
     dataset = CocoDetection(img_folder, ann_file, transforms=make_coco_transforms(image_set), return_masks=args.masks)
     return dataset
+
+def build_taco(image_set, args, categories="all", single_class=False):
+    root = Path(args.coco_path)
+    assert root.exists(), f'provided COCO path {root} does not exist'
+
+    t = [ConvertCocoPolysToMask(), make_coco_transforms(image_set)]
+    transforms = T.Compose(t)
+
+    return TacoDataset(root, transforms, categories, f"../data_augmentation/detectwaste_{image_set}.json", single_class=single_class)
