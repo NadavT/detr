@@ -196,8 +196,14 @@ def main(args):
         return
 
     print("Start training")
-    best_checkpoint = None
-    best_result = 0.0
+    if args.resume:
+        try:
+            best_checkpoint = torch.load(output_dir / 'best_checkpoint.pth')
+            best_result = torch.load(output_dir / 'best_result.txt')
+            print("Best result: ", best_result)
+        except FileNotFoundError:
+            best_checkpoint = None
+            best_result = 0.0
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
@@ -228,6 +234,8 @@ def main(args):
         if best_checkpoint is None or coco_evaluator.coco_eval['bbox'].stats[0] > best_result:
             best_checkpoint = checkpoint
             best_result = coco_evaluator.coco_eval['bbox'].stats[0]
+            utils.save_on_master(best_checkpoint, output_dir / 'best_checkpoint.pth')
+            utils.save_on_master(best_result, output_dir / 'best_result.txt')
 
         log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
                      **{f'test_{k}': v for k, v in test_stats.items()},
