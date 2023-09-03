@@ -135,7 +135,7 @@ def make_coco_transforms(image_set):
             normalize,
         ])
 
-    if image_set == 'val':
+    if image_set == 'val' or image_set == 'test':
         return T.Compose([
             T.RandomResize([800], max_size=1333),
             normalize,
@@ -157,11 +157,15 @@ def build(image_set, args):
     dataset = CocoDetection(img_folder, ann_file, transforms=make_coco_transforms(image_set), return_masks=args.masks)
     return dataset
 
-def build_taco(image_set, args, categories="all", single_class=False):
+def build_taco(image_set, args, transform, categories="all", single_class=False):
     root = Path(args.coco_path)
     assert root.exists(), f'provided COCO path {root} does not exist'
 
-    t = [ConvertCocoPolysToMask(), make_coco_transforms(image_set)]
+    if args.toy:
+        image_set = 'val'
+    t = [ConvertCocoPolysToMask(), make_coco_transforms(image_set)] if transform else []
     transforms = T.Compose(t)
+    if args.toy:
+        image_set = 'train'
 
-    return TacoDataset(root, transforms, categories, f"../data_augmentation/detectwaste_{image_set}.json", single_class=single_class)
+    return TacoDataset(root, transforms, categories, f"../data_augmentation/detectwaste_{image_set}{'_binary' if single_class else ''}.json", single_class=single_class, toy=args.toy)

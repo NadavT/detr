@@ -94,6 +94,7 @@ def get_args_parser():
                         help='start epoch')
     parser.add_argument('--eval', action='store_true')
     parser.add_argument('--num_workers', default=2, type=int)
+    parser.add_argument('--toy', action='store_true', help='train on a toy dataset')
 
     # distributed training parameters
     parser.add_argument('--world_size', default=1, type=int,
@@ -179,7 +180,6 @@ def main(args):
         if 'coco' not in args.dataset_file:
             del checkpoint["model"]["class_embed.weight"]
             del checkpoint["model"]["class_embed.bias"]
-            del checkpoint["model"]["query_embed.weight"]
             model_without_ddp.load_state_dict(checkpoint['model'], strict=False)
         else:
             model_without_ddp.load_state_dict(checkpoint['model'])

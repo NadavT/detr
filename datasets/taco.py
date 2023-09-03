@@ -6,7 +6,7 @@ import torch
 import torchvision
 
 class TacoDataset(torchvision.datasets.CocoDetection):
-    def __init__(self, root, transforms, categories, annotations, single_class=False):
+    def __init__(self, root, transforms, categories, annotations, single_class=False, toy=False):
         super(TacoDataset, self).__init__(root, annotations)
         self.root = root
         self.transforms = transforms
@@ -35,6 +35,8 @@ class TacoDataset(torchvision.datasets.CocoDetection):
             self.imgs = self.coco.loadImgs(imgIds)
         self.imgs = [
             img for img in self.imgs if img['file_name'].startswith('batch')]
+        if toy:
+            self.imgs = self.imgs[:10]
         self.catMap = {catId: i + 1 for i, catId in enumerate(self.catIds)}
 
     def __getitem__(self, idx):
@@ -67,8 +69,8 @@ class TacoDataset(torchvision.datasets.CocoDetection):
         if self.transforms is not None:
             img, target = self.transforms(img, target)
 
-        if self.single_class:
-            target['labels'] = torch.ones_like(target['labels'])
+        # if self.single_class:
+        #     target['labels'] = torch.ones_like(target['labels'])
 
         return img, target
 

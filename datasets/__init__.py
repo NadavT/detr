@@ -14,7 +14,7 @@ def get_coco_api_from_dataset(dataset):
         return dataset.coco
 
 
-def build_dataset(image_set, args):
+def build_dataset(image_set, args, transform=True):
     if args.dataset_file == 'coco':
         return build_coco(image_set, args)
     if args.dataset_file == 'coco_panoptic':
@@ -22,10 +22,10 @@ def build_dataset(image_set, args):
         from .coco_panoptic import build as build_coco_panoptic
         return build_coco_panoptic(image_set, args)
     if args.dataset_file == 'taco':
-        return build_taco(image_set, args)
+        return build_taco(image_set, args, transform)
     if args.dataset_file == 'taco_single':
-        return build_taco(image_set, args, single_class=True)
+        return build_taco(image_set, args, transform, single_class=True)
     if args.dataset_file == 'taco_metals_and_plastic':
-        return build_taco(image_set, args, categories=['metals_and_plastic'])
+        return build_taco(image_set, args, transform, categories=['metals_and_plastic'])
 
     raise ValueError(f'dataset {args.dataset_file} not supported')
